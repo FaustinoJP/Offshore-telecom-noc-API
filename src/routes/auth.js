@@ -15,7 +15,7 @@ router.post('/login', async (req, res) => {
     }
 
     const { rows } = await db.query(
-      'SELECT id, email, password, role FROM users WHERE email = $1',
+      'SELECT id, mail as email, password, role FROM users WHERE email = $1',
       [email]
     );
 

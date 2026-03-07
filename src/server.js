@@ -13,6 +13,68 @@ const server = http.createServer(app);
 
 
 
+app.get('/bootstrap-noc', async (req, res) => {
+  try {
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS sites (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        latitude FLOAT,
+        longitude FLOAT,
+        status TEXT DEFAULT 'healthy',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS devices (
+        id SERIAL PRIMARY KEY,
+        site_id INTEGER REFERENCES sites(id),
+        name TEXT,
+        vendor TEXT,
+        model TEXT,
+        status TEXT DEFAULT 'online'
+      );
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS links (
+        id SERIAL PRIMARY KEY,
+        source_site INTEGER REFERENCES sites(id),
+        target_site INTEGER REFERENCES sites(id),
+        capacity INTEGER,
+        status TEXT DEFAULT 'up'
+      );
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS alarms (
+        id SERIAL PRIMARY KEY,
+        site_id INTEGER REFERENCES sites(id),
+        severity TEXT,
+        message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS incidents (
+        id SERIAL PRIMARY KEY,
+        alarm_id INTEGER REFERENCES alarms(id),
+        status TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    res.json({ success: true, message: "NOC schema created" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 
 const db = require('./db');

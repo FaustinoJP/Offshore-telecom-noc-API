@@ -47,6 +47,42 @@ app.get('/bootstrap-users', async (req, res) => {
 });
 
 
+
+
+app.get('/seed-noc', async (req, res) => {
+  try {
+
+    await db.query(`
+      INSERT INTO sites (name, latitude, longitude, status)
+      VALUES
+      ('Luanda Core', -8.8383, 13.2344, 'healthy'),
+      ('Soyo Hub', -6.1349, 12.3689, 'healthy'),
+      ('Offshore Platform A', -8.9201, 13.1821, 'healthy'),
+      ('Offshore Platform B', -9.1500, 12.9500, 'down');
+    `);
+
+    await db.query(`
+      INSERT INTO alarms (site_id, severity, message)
+      VALUES
+      (2, 'major', 'Microwave packet loss'),
+      (4, 'critical', 'VSAT link down');
+    `);
+
+    res.json({ success: true, message: "NOC sample data inserted" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+
+
+
+
+
+
 const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
 app.use(cors({

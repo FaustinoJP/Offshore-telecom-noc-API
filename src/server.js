@@ -80,9 +80,6 @@ app.get('/seed-noc', async (req, res) => {
 
 
 
-
-
-
 const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
 app.use(cors({

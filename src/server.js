@@ -36,10 +36,10 @@ app.get('/bootstrap-users', async (req, res) => {
       ON CONFLICT (email) DO NOTHING;
     `);
 
-    res.json({ success: true, message: 'users bootstrapped' });
+    return res.json({ success: true, message: 'users bootstrapped' });
   } catch (error) {
     console.error('BOOTSTRAP ERROR:', error);
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 

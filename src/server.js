@@ -11,6 +11,39 @@ const internalRoutesFactory = require('./routes/internal');
 const app = express();
 const server = http.createServer(app);
 
+
+const db = require('./db');
+
+app.get('/bootstrap-users', async (req, res) => {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(50) NOT NULL DEFAULT 'admin',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await db.query(`
+      INSERT INTO users (mail, password, role)
+      VALUES (
+        'admin@nocsystem.local',
+        '$2a$10$XFeVQ9uQH9H6y1t7yPqF8OqkX5uXkR4c6p9hL1Yy6n3Yk1Kp6vG7K',
+        'admin'
+      )
+      ON CONFLICT (mail) DO NOTHING;
+    `);
+
+    res.json({ success: true, message: 'users bootstrapped' });
+  } catch (error) {
+    console.error('BOOTSTRAP ERROR:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
 const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
 app.use(cors({

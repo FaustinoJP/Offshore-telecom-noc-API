@@ -44,26 +44,6 @@ app.get('/bootstrap-users', async (req, res) => {
 });
 
 
-
-app.get('/reset-admin', async (req, res) => {
-  try {
-    const bcrypt = require('bcryptjs');
-    const hash = await bcrypt.hash('admin123', 10);
-
-    await db.query(
-      `UPDATE users SET password = $1 WHERE email = 'admin@nocsystem.local'`,
-      [hash]
-    );
-
-    res.json({ success: true, message: 'admin password reset' });
-  } catch (error) {
-    console.error('RESET ADMIN ERROR:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-
-
 const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
 app.use(cors({

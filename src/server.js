@@ -10,10 +10,36 @@ const internalRoutesFactory = require('./routes/internal');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: process.env.CORS_ORIGIN || '*' } });
 
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
+const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
+
+app.use(cors({
+  origin: allowedOrigin,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
+
+app.options('*', cors({
+  origin: allowedOrigin,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
+
 app.use(express.json());
+
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigin,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
+
+app.get('/health', (req, res) => {
+  res.json({ success: true, status: 'ok' });
+});
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1', apiRoutes);

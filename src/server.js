@@ -27,13 +27,13 @@ app.get('/bootstrap-users', async (req, res) => {
     `);
 
     await db.query(`
-      INSERT INTO users (mail, password, role)
+      INSERT INTO users (email, password, role)
       VALUES (
         'admin@nocsystem.local',
         '$2a$10$XFeVQ9uQH9H6y1t7yPqF8OqkX5uXkR4c6p9hL1Yy6n3Yk1Kp6vG7K',
         'admin'
       )
-      ON CONFLICT (mail) DO NOTHING;
+      ON CONFLICT (email) DO NOTHING;
     `);
 
     res.json({ success: true, message: 'users bootstrapped' });

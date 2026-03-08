@@ -3,9 +3,11 @@ module.exports = function internalRoutesFactory(io) {
 
   router.get("/simulate-alarm", async (req, res) => {
     try {
+      const siteId = req.query.siteId || "site-003";
+
       const alarm = {
         id: "sim-" + Date.now(),
-        siteId: "site-002",
+        siteId,
         severity: "Critical",
         state: "Open",
         equipment: "Microwave ODU",

@@ -121,11 +121,9 @@ app.get('/bootstrap-full-schema', async (req, res) => {
 
 app.get('/seed-full-noc', async (req, res) => {
   try {
-    await db.query(`DELETE FROM incidents`);
-    await db.query(`DELETE FROM alarms`);
-    await db.query(`DELETE FROM events`);
-    await db.query(`DELETE FROM links`);
-    await db.query(`DELETE FROM sites`);
+   await db.query(`
+  TRUNCATE TABLE incidents, alarms, events, links, devices, sites RESTART IDENTITY CASCADE;
+  `);
 
     await db.query(`
       INSERT INTO sites (id, name, region, technology, status, availability, active_alarms, lat, lng, last_seen)

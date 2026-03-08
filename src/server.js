@@ -122,7 +122,7 @@ app.get('/bootstrap-full-schema', async (req, res) => {
 app.get('/seed-full-noc', async (req, res) => {
   try {
    await db.query(`
-  TRUNCATE TABLE incidents, alarms, events, links, devices, sites RESTART IDENTITY CASCADE;
+     TRUNCATE TABLE incidents, alarms, events, links, sites CASCADE;
   `);
 
     await db.query(`

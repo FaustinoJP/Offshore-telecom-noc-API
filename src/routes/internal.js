@@ -26,4 +26,39 @@ module.exports = (io) => {
   router.post('/metrics', async (_req, res) => res.json({ success: true }));
 
   return router;
+
+
+
+  router.get("/simulate-alarm", async (req, res) => {
+  try {
+
+    const alarm = {
+      id: "sim-" + Date.now(),
+      siteId: "site-002",
+      severity: "Critical",
+      state: "Open",
+      equipment: "Microwave ODU",
+      message: "Microwave link failure detected",
+      startedAt: new Date().toISOString()
+    };
+
+    // emitir evento websocket
+    io.emit("alarm.created", alarm);
+
+    res.json({
+      success: true,
+      message: "Alarm simulated",
+      alarm
+    });
+
+  } catch (err) {
+
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+
+  }
+});
+  
 };

@@ -186,6 +186,86 @@ app.get('/seed-full-noc', async (req, res) => {
 
 
 
+app.get('/reset-full-schema', async (req, res) => {
+  try {
+    await db.query(`DROP TABLE IF EXISTS incidents CASCADE`);
+    await db.query(`DROP TABLE IF EXISTS alarms CASCADE`);
+    await db.query(`DROP TABLE IF EXISTS events CASCADE`);
+    await db.query(`DROP TABLE IF EXISTS links CASCADE`);
+    await db.query(`DROP TABLE IF EXISTS devices CASCADE`);
+    await db.query(`DROP TABLE IF EXISTS sites CASCADE`);
+
+    await db.query(`
+      CREATE TABLE sites (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        region TEXT NOT NULL,
+        technology TEXT NOT NULL,
+        status TEXT NOT NULL,
+        availability NUMERIC(5,2) DEFAULT 99.0,
+        active_alarms INTEGER DEFAULT 0,
+        lat DOUBLE PRECISION,
+        lng DOUBLE PRECISION,
+        last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await db.query(`
+      CREATE TABLE links (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        source_site_id TEXT NOT NULL,
+        target_site_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        status TEXT NOT NULL,
+        utilization INTEGER DEFAULT 0,
+        latency INTEGER DEFAULT 0
+      );
+    `);
+
+    await db.query(`
+      CREATE TABLE events (
+        id TEXT PRIMARY KEY,
+        event TEXT NOT NULL,
+        message TEXT NOT NULL,
+        event_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await db.query(`
+      CREATE TABLE alarms (
+        id TEXT PRIMARY KEY,
+        site_id TEXT NOT NULL,
+        severity TEXT NOT NULL,
+        state TEXT NOT NULL,
+        equipment TEXT,
+        message TEXT NOT NULL,
+        started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await db.query(`
+      CREATE TABLE incidents (
+        id TEXT PRIMARY KEY,
+        site_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        priority TEXT NOT NULL,
+        status TEXT NOT NULL,
+        owner_name TEXT,
+        opened_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    return res.json({ success: true, message: 'Full schema reset and recreated' });
+  } catch (error) {
+    console.error('RESET FULL SCHEMA ERROR:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+
+
 
 const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
